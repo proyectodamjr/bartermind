@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "express": "^4.19.2",
+    "mysql2": "^3.9.3"
+  },
+  "name": "proyectotfg",
+  "version": "1.0.0",
+  "main": "vista/login.html",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tu nombre",
+  "description": "Descripción de tu proyecto",
+  "license": "ISC"
+}
