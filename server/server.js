@@ -7,6 +7,9 @@ app.get('/', function(req, res) {
     res.sendFile(path.join('vista', '/index.html'));
 })
 
+
+
+/*
 //const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -88,3 +91,4 @@ app.post('/login', async (req, res) => {
 
 });
 
+*/
