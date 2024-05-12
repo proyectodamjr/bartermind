@@ -3,6 +3,8 @@ import pool from './db,js'
 
 const app = express()
 
+app.get('/', (req, res) => res.redirect('../vista/index.html'))
+
 //const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
