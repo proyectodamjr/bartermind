@@ -1,8 +1,13 @@
-const express = require('express');
+import express from 'express'
+import pool from './db,js'
+
+const app = express()
+
+//const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 
-const app = express();
+//const app = express();
 const port = 3000;
 
 app.use(express.urlencoded({extended:false}));
