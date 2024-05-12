@@ -4,7 +4,7 @@ import pool from './db,js'
 const app = express()
 
 app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, '/vista/index.html'));
+    res.sendFile(path.join(__dirname + '/vista/index.html'));
 })
 
 
