@@ -3,7 +3,9 @@ import pool from './db,js'
 
 const app = express()
 
-app.get('/', (req, res) => res.redirect('../vista/index.html'))
+app.get('/', function(req, res) {
+    res.sendFile(path.join('vista', '/index.html'));
+})
 
 //const express = require('express');
 const mysql = require('mysql2');
