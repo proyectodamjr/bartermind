@@ -3,11 +3,11 @@ import pool from './db,js'
 
 const app = express()
 
-app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname + '/vista/index.html'));
-})
+//app.get('/', function(req, res) {
+  //  res.sendFile(path.join(__dirname + '/vista/index.html'));
+//})
 
-
+app.use('/', express.static(path.join(__dirname + '/vista/index.html')))
 
 /*
 //const express = require('express');
