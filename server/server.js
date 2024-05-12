@@ -1,13 +1,19 @@
 import express from 'express'
+import path from 'path'
 import pool from './db,js'
 
 const app = express()
+const path = path()
 
 //app.get('/', function(req, res) {
   //  res.sendFile(path.join(__dirname + '/vista/index.html'));
 //})
 
-app.use('/', express.static(path.join(__dirname + '/vista/index.html')))
+//app.use('/', express.static(path.join(__dirname + '/vista/index.html')))
+
+const viewsPath = path.join(__dirname, '../vista');
+
+app.use(express.static(viewsPath));
 
 /*
 //const express = require('express');
