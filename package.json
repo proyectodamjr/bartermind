@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "nodemon server/server.js",
     "start": "node server/server.js",
-    "prod": "npm install --omit=dev"
+    "prod": "npm i --omit=dev"
   },
   "keywords": [],
   "author": "",
