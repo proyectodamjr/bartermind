@@ -1,12 +1,14 @@
 import express from 'express'
 import path from 'path'
-import pool from './db.js'
+import {pool} from './db.js'
+import { PORT } from './config.js'
+
 
 const app = express()
-
-//app.get('/', function(req, res) {
-  //  res.sendFile(path.join(__dirname + '/vista/index.html'));
-//})
+const __dirname = process.cwd()
+app.get('/', function(req, res) {
+   res.sendFile(path.join(__dirname + '/vista/index.html'));
+})
 
 //app.use('/', express.static(path.join(__dirname + '/vista/index.html')))
 
@@ -16,6 +18,9 @@ const viewsPath = path.join(__dirname, '../vista');
 
 app.use(express.static(viewsPath));
 
+app.listen(PORT, () => {
+    console.log(`Servidor iniciado en http://localhost:${PORT}`);
+});
 /*
 //const express = require('express');
 const mysql = require('mysql2');
