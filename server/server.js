@@ -1,6 +1,6 @@
 import express from 'express'
 import path from 'path'
-import pool from './db,js'
+import pool from './db.js'
 
 const app = express()
 
