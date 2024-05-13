@@ -44,7 +44,7 @@ app.post('/login', async (req, res) => {
             res.status(401).send("Credenciales incorrectas. Intente de nuevo.");
         } else{
             console.log(results)
-            res.redirect('/inicio.html');
+            res.redirect('./inicio.html');
         }
 
     } else {
