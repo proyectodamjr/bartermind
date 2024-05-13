@@ -29,15 +29,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Ruta para manejar las solicitudes de inicio de sesión
 app.post('/login', async (req, res) => {
 
-    const correo = req.body.correo;
-    const pass = req.body.contra;
+    let correo = req.body.correo;
+    let pass = req.body.contra;
     
 
     console.log({body:req.body})
 
     if (correo && pass) {
 
-        const results = await pool.query('SELECT correo, contrasena FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
+        var results = await pool.query('SELECT correo, contrasena FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
 
         if (results.length == 0) {
             console.log("hay un error")
