@@ -2,6 +2,7 @@ import express from 'express'
 import path from 'path'
 import {pool} from './db.js'
 import { PORT } from './config.js'
+import bodyParser from 'body-parser'
 
 
 const app = express()
@@ -22,46 +23,33 @@ app.use(express.static(viewsPath));
 app.listen(PORT, () => {
     console.log(`Servidor iniciado en http://localhost:${PORT}`);
 });
-/*
+
+app.use(bodyParser.urlencoded({ extended: false }));
+
 // Ruta para manejar las solicitudes de inicio de sesión
 app.post('/login', async (req, res) => {
 
     const correo = req.body.correo;
     const pass = req.body.contra;
+    
+
+    console.log({body:req.body})
 
     if (correo && pass) {
 
-        connection.query('SELECT correo, contrasena FROM usuarios WHERE correo = ? AND contrasena = ?', [correo], [pass], async (err, results) => {
+        const results = await pool.query('SELECT correo, contrasena FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
 
-            if (results.length == 0) {
-                res.render('login',{
-                    alert: true,
-                    alertTitle: "Error",
-                    alertMessage: "Correo y/o contraseña incorrectos",
-                    alertIcon: "error",
-                    showConfirmButton: true,
-                    timer: false,
-                    ruta: 'login'
-                });
-            } else{
-                req.session.name = results[0].name;
-                res.render('login',{
-                    alert: true,
-                    alertTitle: "Conección exitosa",
-                    alertMessage: "Login correcto!",
-                    alertIcon: "success",
-                    showConfirmButton: false,
-                    timer: 1500,
-                    ruta: 'inicio'
-                });
-            }
-
-        });
+        if (results.length == 0) {
+            console.log("hay un error")
+            res.status(401).send("Credenciales incorrectas. Intente de nuevo.");
+        } else{
+            console.log(results)
+            res.redirect('/inicio.html');
+        }
 
     } else {
-        res.send("Ingrese un correo y una contraseña");
+        res.status(400).send("Por favor ingrese un correo y una contraseña.");
     }
 
 });
 
-*/
