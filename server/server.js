@@ -12,7 +12,8 @@ app.get('/', function(req, res) {
 
 //app.use('/', express.static(path.join(__dirname + '/vista/index.html')))
 
-app.use(express.static('../vista'))
+app.use(express.static('./vista'))
+app.use("/images", express.static("./images"));
 
 const viewsPath = path.join(__dirname, '../vista');
 
@@ -22,46 +23,6 @@ app.listen(PORT, () => {
     console.log(`Servidor iniciado en http://localhost:${PORT}`);
 });
 /*
-//const express = require('express');
-const mysql = require('mysql2');
-const bodyParser = require('body-parser');
-
-//const app = express();
-const port = 3000;
-
-app.use(express.urlencoded({extended:false}));
-app.use(express.json());
-
-//const dotenv = require("dotenv");
-//dotenv.config({path:"./env/.env"});
-
-app.listen(port, () => {
-    console.log(`Servidor iniciado en http://localhost:${port}`);
-});
-
-// Configuración de la conexión a la base de datos
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1234',
-    database: 'tfgbbdd',
-    port: 3306
-});
-
-connection.connect((error)=>{
-    if(error){
-        console.log("error de conección");
-        return;
-    }
-    console.log("conectado a la base de datos");
-
-})
-
-
-//app.get("/", (req,res)=>{
-//    res.render("index");
-//});
-
 // Ruta para manejar las solicitudes de inicio de sesión
 app.post('/login', async (req, res) => {
 
