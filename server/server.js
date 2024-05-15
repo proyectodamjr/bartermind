@@ -7,17 +7,14 @@ import bodyParser from 'body-parser'
 
 const app = express()
 const __dirname = process.cwd()
+const viewsPath = path.join(__dirname, '../vista');
+
 app.get('/', function(req, res) {
    res.sendFile(path.join(__dirname + '/vista/index.html'));
 })
 
-//app.use('/', express.static(path.join(__dirname + '/vista/index.html')))
-
 app.use(express.static('./vista'))
 app.use("/images", express.static("./images"));
-
-const viewsPath = path.join(__dirname, '../vista');
-
 app.use(express.static(viewsPath));
 
 app.listen(PORT, () => {
