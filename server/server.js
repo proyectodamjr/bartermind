@@ -41,14 +41,14 @@ app.post('/login', async (req, res) => {
 
         if (results.length == 0) {
             console.log("hay un error")
-            res.status(401).send("Credenciales incorrectas. Intente de nuevo.");
+            return res.status(401).send("Credenciales incorrectas. Intente de nuevo.");
         } else{
             console.log(results)
-            res.redirect('./inicio.html');
+            return res.redirect('./inicio.html');
         }
 
     } else {
-        res.status(400).send("Por favor ingrese un correo y una contraseña.");
+        return res.status(400).send("Por favor ingrese un correo y una contraseña.");
     }
 
 });
