@@ -50,3 +50,30 @@ app.post('/login', async (req, res) => {
 
 });
 
+// Ruta para manejar las solicitudes de crear cuenta
+app.post('/signup', async (req, res) => {
+
+    let usuario = req.body.usuario;
+    let correo = req.body.correo;
+    let pass = req.body.contra;
+    
+    console.log({body:req.body})
+
+    if (correo && pass && usuario) {
+
+        var [results] = await pool.query('INSERT INTO usuarios(correo, contrasena, usuario) VALUES(?,?,?) ', [correo, pass, usuario])
+
+        if (results.length <= 0) {
+            console.log("hay un error")
+            return res.status(401).send("Credenciales incorrectas. Intente de nuevo.");
+        } else{
+            console.log(results)
+            return res.redirect('./index.html');
+        }
+
+    } else {
+        return res.status(400).send("Por favor rellene bien los campos.");
+    }
+
+});
+
