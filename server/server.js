@@ -37,9 +37,9 @@ app.post('/login', async (req, res) => {
 
     if (correo && pass) {
 
-        var results = await pool.query('SELECT correo, contrasena FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
+        var [results] = await pool.query('SELECT correo, contrasena FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
 
-        if (results.length == 0) {
+        if (results.length <= 0) {
             console.log("hay un error")
             return res.status(401).send("Credenciales incorrectas. Intente de nuevo.");
         } else{
