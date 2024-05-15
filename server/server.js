@@ -61,7 +61,7 @@ app.post('/signup', async (req, res) => {
 
     if (correo && pass && usuario) {
 
-        var [results] = await pool.query('INSERT INTO usuarios(correo, contrasena, usuario) VALUES(?,?,?) ', [correo, pass, usuario])
+        var [results] = await pool.query('INSERT INTO usuarios(correo, contrasena, nombre) VALUES(?,?,?) ', [correo, pass, usuario])
 
         if (results.length <= 0) {
             console.log("hay un error")
