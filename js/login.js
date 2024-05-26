@@ -1,29 +1,34 @@
-function verificar() {
-    const email = document.getElementById('correo').value;
-    const contraseña = document.getElementById('contra').value;
-    
-    alert(email);
-    alert(contraseña);
-    // Realizar una solicitud HTTP al servidor para autenticar al usuario
-    fetch('/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ correo: email, contraseña: contraseña })
-    })
-    .then(response => {
-        if (response.ok) {
-            // Redirigir al usuario a la página de vista si la autenticación fue exitosa
-            window.location.href = '../vista/index.html';
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('loginForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+
+        const response = await fetch('/login', {
+            method: 'POST',
+            body: JSON.stringify(Object.fromEntries(formData)),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            swal({
+                title: "¡Sesión iniciada!",
+                text: result.message,
+                icon: "success"
+            }).then(() => {
+                window.location.href = 'inicio.html'; // Redirige después de mostrar la alerta
+            });
         } else {
-            // Mostrar mensaje de error si la autenticación falló
-            console.log("aaab");
-            alert('Correo o contraseña incorrectos');
+            swal({
+                title: "Error",
+                text: result.message,
+                icon: "error"
+            });
         }
-    })
-    .catch(error => {
-        console.error('Error al realizar la solicitud:', error);
-        alert('Error de conexión');
     });
-}
+});

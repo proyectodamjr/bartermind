@@ -3,17 +3,24 @@ import path from 'path'
 import {pool} from './db.js'
 import { PORT } from './config.js'
 import bodyParser from 'body-parser'
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 
 const app = express()
 const __dirname = process.cwd()
 const viewsPath = path.join(__dirname, '../vista');
 
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 app.get('/', function(req, res) {
    res.sendFile(path.join(__dirname + '/vista/index.html'));
 })
 
 app.use(express.static('./vista'))
+app.use("/js", express.static('./js'))
 app.use("/images", express.static("./images"));
 app.use(express.static(viewsPath));
 
@@ -21,7 +28,7 @@ app.listen(PORT, () => {
     console.log(`Servidor iniciado en http://localhost:${PORT}`);
 });
 
-app.use(bodyParser.urlencoded({ extended: false }));
+
 
 // Ruta para manejar las solicitudes de inicio de sesión
 app.post('/login', async (req, res) => {
@@ -38,14 +45,14 @@ app.post('/login', async (req, res) => {
 
         if (results.length <= 0) {
             console.log("hay un error")
-            return res.status(401).send("Credenciales incorrectas. Intente de nuevo.");
+            return res.status(401).json({ success: false, message: "Credenciales incorrectas. Intente de nuevo." });
         } else{
             console.log(results)
-            return res.redirect('./inicio.html');
+            return res.status(200).json({ success: true, message: "Inicio de sesión exitoso." });
         }
 
     } else {
-        return res.status(400).send("Por favor ingrese un correo y una contraseña.");
+        return res.status(400).json({ success: false, message: "Por favor rellene bien los campos." });
     }
 
 });
@@ -61,19 +68,25 @@ app.post('/signup', async (req, res) => {
 
     if (correo && pass && usuario) {
 
-        var [results] = await pool.query('INSERT INTO usuarios(correo, contrasena, nombre) VALUES(?,?,?) ', [correo, pass, usuario])
+        var [results] = await pool.query('INSERT INTO usuarios(correo, contrasena, nombre) VALUES(?,?,?) ', [correo, pass, usuario]);
 
-        if (results.length <= 0) {
+        if (!results.affectedRows) {
             console.log("hay un error")
-            return res.status(401).send("Credenciales incorrectas. Intente de nuevo.");
-        } else{
+            return res.status(401).json({ success: false, message: "Credenciales incorrectas. Intente de nuevo." });
+        } else {
             console.log(results)
-            return res.redirect('./index.html');
+            return res.status(200).json({ success: true, message: "Cuenta creada con éxito." });
         }
 
     } else {
-        return res.status(400).send("Por favor rellene bien los campos.");
+        return res.status(400).json({ success: false, message: "Por favor rellene bien los campos." });
     }
 
 });
 
+
+//const App = () => {
+    //return <div>Hola Mundo desde React!</div>;
+  //};
+  
+  //ReactDOM.render(<App />, document.getElementById('root'));
