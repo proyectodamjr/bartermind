@@ -1,4 +1,5 @@
 import express from 'express'
+import session from 'express-session'
 import path from 'path'
 import {pool} from './db.js'
 import { PORT } from './config.js'
@@ -10,10 +11,18 @@ import ReactDOM from 'react-dom';
 const app = express()
 const __dirname = process.cwd()
 const viewsPath = path.join(__dirname, '../vista');
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/vista');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: true
+}));
 
 app.get('/', function(req, res) {
    res.sendFile(path.join(__dirname + '/vista/index.html'));
@@ -21,8 +30,17 @@ app.get('/', function(req, res) {
 
 app.use(express.static('./vista'))
 app.use("/js", express.static('./js'))
+app.use("/vite", express.static('./vite'))
 app.use("/images", express.static("./images"));
 app.use(express.static(viewsPath));
+
+app.use((req, res, next) => {
+    if (req.url.endsWith('.jsx')) {
+        res.type('application/javascript');
+    }
+    next();
+});
+
 
 app.listen(PORT, () => {
     console.log(`Servidor iniciado en http://localhost:${PORT}`);
@@ -41,12 +59,14 @@ app.post('/login', async (req, res) => {
 
     if (correo && pass) {
 
-        var [results] = await pool.query('SELECT correo, contrasena FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
+        var [results] = await pool.query('SELECT correo, contrasena, nombre FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
 
         if (results.length <= 0) {
             console.log("hay un error")
             return res.status(401).json({ success: false, message: "Credenciales incorrectas. Intente de nuevo." });
         } else{
+            req.session.nombreUsuario = results[0].nombre;
+
             console.log(results)
             return res.status(200).json({ success: true, message: "Inicio de sesión exitoso." });
         }
@@ -84,6 +104,16 @@ app.post('/signup', async (req, res) => {
 
 });
 
+app.get('/inicio.html', (req, res) => {
+    res.render('../vite/index.html');
+});
+
+
+// Ruta para el perfil del usuario
+app.get('/perfil', (req, res) => {
+    const nombreUsuario = req.session.nombreUsuario;
+    res.render('perfil', { nombreUsuario });
+});
 
 //const App = () => {
     //return <div>Hola Mundo desde React!</div>;
