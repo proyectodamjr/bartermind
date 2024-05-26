@@ -104,8 +104,8 @@ app.post('/signup', async (req, res) => {
 
 });
 
-app.get('/inicio.html', (req, res) => {
-    res.render('../vite/index.html');
+app.get('/inicio', (req, res) => {
+    res.render('/vite/inicio.html');
 });
 
 
