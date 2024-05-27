@@ -41,6 +41,12 @@ app.use((req, res, next) => {
     next();
 });
 
+// Ruta para servir inicio.html desde vite
+app.get('/inicio.html', (req, res) => {
+    res.sendFile(path.join(__dirname + '/vite/inicio.html'));
+});
+
+
 
 app.listen(PORT, () => {
     console.log(`Servidor iniciado en http://localhost:${PORT}`);
@@ -102,11 +108,6 @@ app.post('/signup', async (req, res) => {
         return res.status(400).json({ success: false, message: "Por favor rellene bien los campos." });
     }
 
-});
-
-// Ruta para servir inicio.html desde vite
-app.get('/inicio', (req, res) => {
-    res.sendFile(path.join(__dirname, 'vite/inicio.html'));
 });
 
 
