@@ -4,8 +4,8 @@ import path from 'path'
 import {pool} from './db.js'
 import { PORT } from './config.js'
 import bodyParser from 'body-parser'
-import React from 'react';
-import ReactDOM from 'react-dom';
+//import React from 'react';
+//import ReactDOM from 'react-dom';
 
 
 const app = express()
@@ -104,8 +104,9 @@ app.post('/signup', async (req, res) => {
 
 });
 
+// Ruta para servir inicio.html desde vite
 app.get('/inicio', (req, res) => {
-    res.render('/vite/inicio.html');
+    res.sendFile(path.join(__dirname, 'vite/inicio.html'));
 });
 
 
