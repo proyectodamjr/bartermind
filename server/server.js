@@ -110,15 +110,20 @@ app.post('/signup', async (req, res) => {
 
 });
 
+// Ruta para manejar las solicitudes de búsqueda
+app.post('/search', async (req, res) => {
+    const query = req.body.query;
+
+    if (query) {
+        var [results] = await pool.query('SELECT nombre FROM usuarios WHERE nombre LIKE ?', [`%${query}%`]);
+        return res.status(200).json({ results });
+    } else {
+        return res.status(400).json({ message: "Por favor ingrese un término de búsqueda." });
+    }
+});
 
 // Ruta para el perfil del usuario
 app.get('/perfil', (req, res) => {
     const nombreUsuario = req.session.nombreUsuario;
     res.render('perfil', { nombreUsuario });
 });
-
-//const App = () => {
-    //return <div>Hola Mundo desde React!</div>;
-  //};
-  
-  //ReactDOM.render(<App />, document.getElementById('root'));
