@@ -8,18 +8,34 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <link rel="icon" href="../images/logo.png" type="image/x-icon">
     <style>
-      .video-container {
-          padding-top: 5%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh; 
-      }
       .gradient-custom {
             background: #6a11cb;
             background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
             background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
       }
+      .profile-container {
+            margin-top: 20px; /* Adjust as needed */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .profile-info {
+            margin-bottom: 20px;
+        }
+        .videos-comments-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .videos {
+          margin-top: 20px;
+            flex: 1;
+        }
+        .comments {
+          margin-top: 20px;
+            flex: 1;
+            display: none; /* Ocultar por defecto los comentarios */
+        }
   </style>
   <script src="../js/perfil.js"></script>
   </head>
@@ -71,7 +87,39 @@
 
 <br><br><br><br>
 
-  <h1>Bienvenido, <%= nombreUsuario %>!</h1>
+<!-- PROFILE INFO -->
+<div class="profile-container">
+  <div class="row">
+    <div class="col">
+      <img src="../images/perfil.png" alt="Logo" width="60" height="60">
+    </div>
+    <div class="col profile-info">
+      <h1><%= nombreUsuario %></h1>
+    </div>
+  </div>
+
+  <!-- Botones para alternar entre videos y comentarios -->
+  <div class="d-flex justify-content-center mt-3">
+    <a id="videos-btn" class="btn btn-primary me-3">Videos</a>
+    <a id="comments-btn" class="btn btn-primary">Comentarios</a>
+  </div>
+
+  <!-- VIDEOS & COMMENTS -->
+  <div class="videos-comments-container">
+    <!-- Videos -->
+    <div class="videos">
+      <h2>Videos</h2>
+      <!-- Aquí va el contenido de los videos -->
+    </div>
+
+    <!-- Comments -->
+    <div class="comments">
+      <h2>Comentarios</h2>
+      <!-- Aquí va el contenido de los comentarios -->
+    </div>
+  </div>
+</div>
+
 
 </body>
 </html>
