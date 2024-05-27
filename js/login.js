@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 text: result.message,
                 icon: "success"
             }).then(() => {
-                window.location.href = '/inicio'; // Redirige después de mostrar la alerta
+                window.location.href = '/inicio.html'; // Redirige después de mostrar la alerta
             });
         } else {
             swal({
