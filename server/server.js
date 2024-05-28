@@ -30,6 +30,7 @@ app.get('/', function(req, res) {
 
 app.use(express.static('./vista'))
 app.use("/js", express.static('./js'))
+app.use("/css", express.static('./css'))
 app.use("/vite", express.static('./vite'))
 app.use("/images", express.static("./images"));
 app.use(express.static(viewsPath));

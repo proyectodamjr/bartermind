@@ -1,0 +1,28 @@
+.gradient-custom {
+    background: #6a11cb;
+    background: -webkit-linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+    background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
+}
+.profile-container {
+    margin-top: 20px; /* Adjust as needed */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.profile-info {
+    margin-bottom: 20px;
+}
+.videos-comments-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+.videos {
+  margin-top: 20px;
+    flex: 1;
+}
+.comments {
+  margin-top: 20px;
+    flex: 1;
+    display: none; /* Ocultar por defecto los comentarios */
+}
