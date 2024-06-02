@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import SelectDropdown from './SelectDropdown';
 
 const UploadPicture = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState("");
   const [caption, setCaption] = useState("");
-  //const [productId, setProductId] = useState("");
+  const [category, setCategory] = useState("");
 
   const handleFileChange = (event) => {
     setSelectedFile(event.target.files[0]);
@@ -16,7 +17,7 @@ const UploadPicture = () => {
     const formData = new FormData();
     formData.append("file", selectedFile);
     formData.append("caption", caption);
-    //formData.append("productId", productId);
+    formData.append("category", category);
 
     try {
       const response = await fetch("/api/users/upload", {
@@ -37,12 +38,12 @@ const UploadPicture = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="grid grid-cols-1 gap-4 max-w-sm">
-        <div>
+        <div class="mt-3">
           <label
             htmlFor="file"
             className="block text-sm font-medium text-gray-700"
           >
-            Picture
+            Video
           </label>
           <input
             type="file"
@@ -52,12 +53,12 @@ const UploadPicture = () => {
             className="focus:ring-indigo-500 focus:border-indigo-500 rounded-md sm:text-sm px-3 py-2 border border-gray-300"
           />
         </div>
-        <div>
+        <div class="mt-3">
           <label
             htmlFor="caption"
             className="block text-sm font-medium text-gray-700"
           >
-            Caption
+            Título
           </label>
           <input
             type="text"
@@ -65,9 +66,19 @@ const UploadPicture = () => {
             name="caption"
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
-            placeholder="Caption"
+            placeholder="Título"
             className="focus:ring-indigo-500 focus:border-indigo-500 rounded-md sm:text-sm px-3 py-2 border border-gray-300"
           />
+        </div>
+
+        <div class="mt-3">
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Categoría
+          </label>
+          <SelectDropdown setCategory={setCategory} />
         </div>
        
         <div className="flex justify-end">

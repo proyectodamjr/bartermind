@@ -128,6 +128,18 @@ app.post('/search', async (req, res) => {
     }
 });
 
+// Ruta para manejar las solicitudes de categorias
+app.post('/categorias', async (req, res) => {
+    try {
+        const [results] = await pool.query('SELECT id, nombre FROM categoria');
+
+        return res.status(200).json({ results });
+    } catch (error) {
+        console.error('Error en la consulta:', error);
+        return res.status(500).json({ message: "Error en el servidor." });
+    }
+});
+
 // Ruta para el perfil del usuario
 app.get('/perfil', (req, res) => {
     const nombreUsuario = req.session.nombreUsuario;
