@@ -147,17 +147,33 @@ app.get('/perfil', (req, res) => {
 });
 
 // Ruta para subir videos
-app.post('/api/users/upload',upload.single('file'), (req, res) => {
+app.post('/api/users/upload',upload.single('file'), async (req, res) => {
    
-        console.log({'req.body': req.body})
-        console.log({'req.file': req.file})
-        const id =  req.session.idUsuario 
-        const fileName = req.file.filename
-        console.log(req.session.idUsuario )
-        //try {
-            //await productsService.findByIdAndUpdate(id, {$set: fields}, { new: true})
-            // await uploadFile(req.file.originalname, req.file.buffer, req.file.mimetype)
-            //res.status(200).json("upload sucessful");
-        //} catch (error) {
+    var [result] = await pool.query('SELECT id FROM categoria WHERE nombre = ? ', [req.body.category]);
+
+    console.log("id de categoria: ", result[0].id)
+    console.log({'req.body': req.body})
+    console.log({'req.file': req.file})
+    const id =  req.session.idUsuario 
+    const fileName = req.file.filename
+    console.log(req.session.idUsuario )
+    console.log(req.body.caption )
+    console.log(req.body.category )
+
+    var [results] = await pool.query('INSERT INTO videos(enlace, categoria_id, usuarios_id, titulo) VALUES(?,?,?,?) ', [req.file.filename, result[0].id, req.session.idUsuario, req.body.caption]);
+
+    if (!results.affectedRows) {
+        console.log("hay un error")
+        return res.status(401).json({ success: false, message: "Ha habido un error. Intente de nuevo." });
+    } else {
+        console.log(results)
+        return res.status(200).json({ success: true, message: "Video subido con éxito." });
+    }
+
+    //try {
+        //await productsService.findByIdAndUpdate(id, {$set: fields}, { new: true})
+        // await uploadFile(req.file.originalname, req.file.buffer, req.file.mimetype)
+        //res.status(200).json("upload sucessful");
+    //} catch (error) {
 })
 

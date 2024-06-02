@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import SelectDropdown from './SelectDropdown';
+import swal from 'sweetalert';
 
 const UploadPicture = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -28,10 +29,22 @@ const UploadPicture = () => {
         // },
       });
       const data = await response.json();
-      setMessage(data.message);
+      //setMessage(data.message);
+      swal({
+        title: "Subida exitosa!",
+        text: data.message,
+        icon: "success"
+    }).then(() => {
+        window.location.href = '/perfil'; // Redirige después de mostrar la alerta
+    });
     } catch (error) {
       console.error(error);
-      setMessage("Error uploading picture");
+      //setMessage("Error uploading picture");
+      swal({
+        title: "Error",
+        text: data.message,
+        icon: "error"
+    });
     }
   };
 
@@ -85,12 +98,13 @@ const UploadPicture = () => {
           <button
             type="button"
             onClick={handleUpload}
-            disabled={!selectedFile}
+            disabled={!selectedFile || !caption || !category}
             //className="inline-flex items-center px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             class="btn btn-outline-primary mt-3"
           >
             Upload
           </button>
+          <a class="btn btn-outline-danger mt-3 ms-3" href="/perfil">Cancelar</a>
         </div>
       </div>
       <div>
