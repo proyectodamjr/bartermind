@@ -75,7 +75,8 @@ const UploadPicture = () => {
             type="button"
             onClick={handleUpload}
             disabled={!selectedFile}
-            className="inline-flex items-center px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            //className="inline-flex items-center px-4 py-2 bg-indigo-500 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            class="btn btn-outline-primary mt-3"
           >
             Upload
           </button>
