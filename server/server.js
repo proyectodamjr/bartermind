@@ -4,6 +4,7 @@ import path from 'path'
 import {pool} from './db.js'
 import { PORT } from './config.js'
 import bodyParser from 'body-parser'
+import { upload } from './middlewares/multer.js'
 //import React from 'react';
 //import ReactDOM from 'react-dom';
 
@@ -47,7 +48,10 @@ app.get('/inicio.html', (req, res) => {
     res.sendFile(path.join(__dirname + '/vite/inicio.html'));
 });
 
-
+// Ruta para servir upload.html desde vite
+app.get('/upload.html', (req, res) => {
+    res.sendFile(path.join(__dirname + '/vite/upload.html'));
+});
 
 app.listen(PORT, () => {
     console.log(`Servidor iniciado en http://localhost:${PORT}`);
@@ -66,13 +70,14 @@ app.post('/login', async (req, res) => {
 
     if (correo && pass) {
 
-        var [results] = await pool.query('SELECT correo, contrasena, nombre FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
+        var [results] = await pool.query('SELECT correo, contrasena, nombre, id FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
 
         if (results.length <= 0) {
             console.log("hay un error")
             return res.status(401).json({ success: false, message: "Credenciales incorrectas. Intente de nuevo." });
         } else{
             req.session.nombreUsuario = results[0].nombre;
+            req.session.idUsuario = results[0].id;
 
             console.log(results)
             return res.status(200).json({ success: true, message: "Inicio de sesión exitoso." });
@@ -128,3 +133,19 @@ app.get('/perfil', (req, res) => {
     const nombreUsuario = req.session.nombreUsuario;
     res.render('perfil', { nombreUsuario });
 });
+
+// Ruta para subir videos
+app.post('/api/users/upload',upload.single('file'), (req, res) => {
+   
+        console.log({'req.body': req.body})
+        console.log({'req.file': req.file})
+        const id =  req.session.idUsuario 
+        const fileName = req.file.filename
+        console.log({id})
+        //try {
+            //await productsService.findByIdAndUpdate(id, {$set: fields}, { new: true})
+            // await uploadFile(req.file.originalname, req.file.buffer, req.file.mimetype)
+            //res.status(200).json("upload sucessful");
+        //} catch (error) {
+})
+

@@ -1,0 +1,1 @@
+import{j as e,U as t,c as o,R as r}from"./UploadPicture-CLKgquyT.js";function d(){return e.jsx("div",{children:e.jsx(t,{})})}o.createRoot(document.getElementById("uploadVideo")).render(e.jsx(r.StrictMode,{children:e.jsx(d,{})}));

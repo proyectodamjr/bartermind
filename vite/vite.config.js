@@ -10,6 +10,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'inicio.html'), // Apuntar a inicio.html
+        upload: path.resolve(__dirname, 'upload.html'),
       },
     },
   },
