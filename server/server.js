@@ -5,8 +5,6 @@ import {pool} from './db.js'
 import { PORT } from './config.js'
 import bodyParser from 'body-parser'
 import { upload } from './middlewares/multer.js'
-//import React from 'react';
-//import ReactDOM from 'react-dom';
 
 
 const app = express()
@@ -154,8 +152,6 @@ app.post('/api/users/upload',upload.single('file'), async (req, res) => {
     console.log("id de categoria: ", result[0].id)
     console.log({'req.body': req.body})
     console.log({'req.file': req.file})
-    const id =  req.session.idUsuario 
-    const fileName = req.file.filename
     console.log(req.session.idUsuario )
     console.log(req.body.caption )
     console.log(req.body.category )
@@ -170,10 +166,5 @@ app.post('/api/users/upload',upload.single('file'), async (req, res) => {
         return res.status(200).json({ success: true, message: "Video subido con éxito." });
     }
 
-    //try {
-        //await productsService.findByIdAndUpdate(id, {$set: fields}, { new: true})
-        // await uploadFile(req.file.originalname, req.file.buffer, req.file.mimetype)
-        //res.status(200).json("upload sucessful");
-    //} catch (error) {
 })
 
