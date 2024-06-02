@@ -141,7 +141,7 @@ app.post('/api/users/upload',upload.single('file'), (req, res) => {
         console.log({'req.file': req.file})
         const id =  req.session.idUsuario 
         const fileName = req.file.filename
-        console.log({id})
+        console.log(req.session.idUsuario )
         //try {
             //await productsService.findByIdAndUpdate(id, {$set: fields}, { new: true})
             // await uploadFile(req.file.originalname, req.file.buffer, req.file.mimetype)
