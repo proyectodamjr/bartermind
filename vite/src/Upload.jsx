@@ -4,8 +4,10 @@ import UploadPicture from "./components/UploadPicture.jsx";
 
 function Upload() {
   return (
-    <div>
+    <div class="container">
+      <div class="row justify-content-center">
         <UploadPicture/>
+      </div>
     </div>
   );
 }
