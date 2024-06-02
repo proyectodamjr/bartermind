@@ -144,6 +144,33 @@ app.get('/perfil', (req, res) => {
     res.render('perfil', { nombreUsuario });
 });
 
+// Ruta para obtener la lista de comentarios filtrados por usuarios_id
+app.get('/api/comentarios', async (req, res) => {
+  
+    var [results] = await pool.query('SELECT c.id as id, c.idCurso, c.comentario as comentario, ' +
+    ' c.comentarista_id1, c.aceptado as aceptado, u.nombre as nombre '+
+    ' FROM comentario c JOIN usuarios u ON c.comentarista_id1 = u.id ' +
+    ' WHERE usuarios_id = ? ', [req.session.idUsuario]);
+    
+    res.json(results);
+
+});
+
+// Ruta para aceptar un comentario
+app.post('/api/comentarios/aceptar/:id', async (req, res) => {
+    const comentarioId = req.params.id;
+
+    var [results] = await pool.query('UPDATE comentario SET aceptado = "Y" WHERE id = ? ', [comentarioId]);
+
+    if (!results.affectedRows) {
+        console.log("hay un error")
+        return res.status(401).json({ success: false, message: "No se encontró el comentario o ya está aceptado." });
+    } else {
+        console.log(results)
+        return res.status(200).json({ success: true, message: "Comentario aceptado exitosamente." });
+    }
+});
+  
 // Ruta para subir videos
 app.post('/api/users/upload',upload.single('file'), async (req, res) => {
    

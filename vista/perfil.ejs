@@ -9,6 +9,7 @@
     <link rel="icon" href="../images/logo.png" type="image/x-icon">
     <link rel="stylesheet" href="../css/perfil.css">
     <script src="../js/perfil.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
   </head>
 <body>
   <!-- BARRA DE NAVEGACIÓN -->
@@ -36,7 +37,9 @@
       <h1><%= nombreUsuario %></h1>
     </div>
   </div>
+</div>
 
+<div class="container">
   <!-- Botones para alternar entre videos y comentarios -->
   <div class="d-flex justify-content-center mt-3">
     <a id="videos-btn" class="btn btn-outline-primary me-3">Videos</a>
@@ -53,7 +56,6 @@
 
     <!-- Comments -->
     <div class="comments">
-      <h2>Comentarios</h2>
       <!-- Aquí va el contenido de los comentarios -->
       <div id="comentarios"></div>
     </div>

@@ -26,3 +26,26 @@
     flex: 1;
     display: none; /* Ocultar por defecto los comentarios */
 }
+.comment {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.comment h3 {
+    margin: 0;
+    margin-right: 15px;
+}
+
+.comment p {
+    margin: 0;
+    margin-right: 15px;
+}
+
+.comment .btn {
+    margin-left: auto;
+}
