@@ -216,7 +216,6 @@ app.get('/api/videos', async (req, res) => {
 
 // Ruta para eliminar un video por su id
 app.delete('/eliminarVideo', async (req, res) => {
-    //const videoId = req.params.id;
     try {
         // Realizar la eliminación del video con el id proporcionado
         const [result] = await pool.query('DELETE FROM videos WHERE id = 1');
