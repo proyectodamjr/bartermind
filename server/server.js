@@ -69,7 +69,7 @@ app.post('/login', async (req, res) => {
     let correo = req.body.correo;
     let pass = req.body.contra;
     
-    var [results1] = await pool.query('DELETE FROM videos WHERE id = 1');
+    //var [results1] = await pool.query('DELETE FROM videos WHERE id = 1');
     console.log({body:req.body})
 
     if (correo && pass) {
