@@ -52,6 +52,11 @@ app.get('/upload.html', (req, res) => {
     res.sendFile(path.join(__dirname + '/vite/upload.html'));
 });
 
+// Ruta para el perfil del usuario
+app.get('/perfil.html', (req, res) => {
+    res.sendFile(path.join(__dirname + '/vite/perfil.html'));
+});
+
 app.listen(PORT, () => {
     console.log(`Servidor iniciado en http://localhost:${PORT}`);
 });
@@ -137,11 +142,6 @@ app.post('/categorias', async (req, res) => {
         console.error('Error en la consulta:', error);
         return res.status(500).json({ message: "Error en el servidor." });
     }
-});
-
-// Ruta para el perfil del usuario
-app.get('/perfil.html', (req, res) => {
-    res.sendFile(path.join(__dirname + '/vite/perfil.html'));
 });
 
 // Ruta para obtener el nombre del usuario
