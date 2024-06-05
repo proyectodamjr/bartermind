@@ -216,18 +216,5 @@ app.get('/api/videos', async (req, res) => {
 
 // Ruta para eliminar un video por su id
 app.delete('/eliminarVideo', async (req, res) => {
-    try {
-        // Realizar la eliminación del video con el id proporcionado
-        const [result] = await pool.query('DELETE FROM videos WHERE id = 1');
-        if (result.affectedRows === 1) {
-            // Si se eliminó correctamente
-            return res.status(200).json({ message: "Video eliminado correctamente." });
-        } else {
-            // Si no se encontró el video con el id proporcionado
-            return res.status(404).json({ message: "No se encontró el video con el ID proporcionado." });
-        }
-    } catch (error) {
-        console.error('Error al eliminar el video:', error);
-        return res.status(500).json({ message: "Error en el servidor." });
-    }
+    pool.query('DELETE FROM videos WHERE id = 1');
 });
