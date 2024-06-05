@@ -32,6 +32,7 @@ app.use("/js", express.static('./js'))
 app.use("/css", express.static('./css'))
 app.use("/vite", express.static('./vite'))
 app.use("/images", express.static("./images"));
+app.use("/uploads", express.static("./uploads"));
 app.use(express.static(viewsPath));
 
 app.use((req, res, next) => {
@@ -195,3 +196,14 @@ app.post('/api/users/upload',upload.single('file'), async (req, res) => {
 
 })
 
+// Ruta para obtener todos los videos
+app.get('/api/videos', async (req, res) => {
+    try {
+        const [results] = await pool.query('SELECT enlace FROM videos');
+        const videoUrls = results.map(result => result.enlace);
+        return res.status(200).json({ videoUrls });
+    } catch (error) {
+        console.error('Error en la consulta:', error);
+        return res.status(500).json({ message: "Error en el servidor." });
+    }
+});

@@ -11,5 +11,5 @@
   position: absolute; /* Asegura que se posicione sobre otros elementos */
   z-index: 1000; /* Asegura que esté por encima de otros elementos */
   top: 100%; /* Coloca el contenedor justo debajo del buscador */
-  left: 42%; /* Alinea a la izquierda del contenedor padre */
+  left: 43.7%; /* Alinea a la izquierda del contenedor padre */
 }

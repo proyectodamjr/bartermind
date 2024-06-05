@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="../css/inicio.css">
   </head>
 <body>
+  <div>
   <!-- BARRA DE NAVEGACIÓN -->
   <nav class="navbar bg-body-tertiary fixed-top bg-primary-subtle gradient-custom">
     <div class="container-fluid">
@@ -50,10 +51,11 @@
         </div>
       </div>
 
-      <!-- Contenedor de búsqueda centrado -->
-        <div id="root" class="mx-auto"></div>
-        <script type="module" src="./src/main.jsx"></script>
-      
+
+    <!-- Contenedor de búsqueda centrado -->
+    <div id="root" class="mx-auto"></div>
+    <script type="module" src="./src/main.jsx"></script>
+
       <!-- Botón usuario -->
       <div class="action2">
         <div class="profile" onclick="menuToggle()">
@@ -71,10 +73,15 @@
 
     </div>
   </nav>
+</div>
+</br></br></br></br>
 
-
-
+    <!-- Contenedor de búsqueda centrado -->
+    <div class="container mt-5">
+      <div id="rootVideo" class="mx-auto"></div>
+    </div>
+    <script type="module" src="./src/mainVideo.jsx"></script>
   
-  <script src="../js/inicio.js"></script>
+  <script type="module" src="../js/inicio.js"></script>
 </body>
 </html>
