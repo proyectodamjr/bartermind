@@ -35,7 +35,7 @@ const UploadPicture = () => {
         text: data.message,
         icon: "success"
     }).then(() => {
-        window.location.href = '/perfil'; // Redirige después de mostrar la alerta
+        window.location.href = '/perfil.html'; // Redirige después de mostrar la alerta
     });
     } catch (error) {
       console.error(error);
@@ -104,7 +104,7 @@ const UploadPicture = () => {
           >
             Upload
           </button>
-          <a class="btn btn-outline-danger mt-3 ms-3" href="/perfil">Cancelar</a>
+          <a class="btn btn-outline-danger mt-3 ms-3" href="/perfil.html">Cancelar</a>
         </div>
       </div>
       <div>

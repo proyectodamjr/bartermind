@@ -11,6 +11,7 @@ export default defineConfig({
       input: {
         main: path.resolve(__dirname, 'inicio.html'), // Apuntar a inicio.html
         upload: path.resolve(__dirname, 'upload.html'),
+        perfil: path.resolve(__dirname, 'perfil.html'),
       },
     },
   },

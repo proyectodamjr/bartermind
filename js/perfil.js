@@ -4,6 +4,17 @@ document.addEventListener("DOMContentLoaded", function() {
     const videosContainer = document.querySelector(".videos");
     const commentsContainer = document.querySelector(".comments");
     const comentariosDiv = document.getElementById("comentarios");
+    const nombreUsuarioDiv = document.getElementById("nombreUsuario");
+
+    // Fetch nombre de usuario
+    fetch('/api/nombreUsuario')
+        .then(response => response.json())
+        .then(data => {
+            const h1Element = document.createElement('h1');
+            h1Element.textContent = data.nombreUsuario;
+            nombreUsuarioDiv.appendChild(h1Element);
+        })
+    .catch(error => console.error('Error fetching nombreUsuario:', error));
 
     videosBtn.addEventListener("click", function() {
         videosContainer.style.display = "block";

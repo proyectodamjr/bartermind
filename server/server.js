@@ -140,9 +140,14 @@ app.post('/categorias', async (req, res) => {
 });
 
 // Ruta para el perfil del usuario
-app.get('/perfil', (req, res) => {
-    const nombreUsuario = req.session.nombreUsuario;
-    res.render('perfil', { nombreUsuario });
+app.get('/perfil.html', (req, res) => {
+    res.sendFile(path.join(__dirname + '/vite/perfil.html'));
+});
+
+// Ruta para obtener el nombre del usuario
+app.get('/api/nombreUsuario', (req, res) => {
+    const nombreUsuario = req.session.nombreUsuario; 
+    res.json({ nombreUsuario });
 });
 
 // Ruta para obtener la lista de comentarios filtrados por usuarios_id
