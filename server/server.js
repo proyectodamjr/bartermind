@@ -295,11 +295,10 @@ app.get('/api/videos/perfilUsuario/:id', async (req, res) => {
     const userId = req.params.id;
     try {
         const query = `
-            SELECT DISTINCT v.id, v.enlace, v.titulo, v.idCurso, c.nombre AS nombreCurso
+            SELECT v.id, v.enlace, v.titulo, v.idCurso, c.nombre AS nombreCurso
             FROM videos v
             JOIN curso c ON v.idCurso = c.id
-            JOIN comentario com ON v.idCurso = com.idCurso
-            WHERE com.aceptado = 'y' AND com.comentarista_id1 = ? ;
+            WHERE v.usuarios_id = ?;
         `;
         const [results] = await pool.query(query, [userId]);
         return res.status(200).json({ videos: results });
