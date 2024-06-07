@@ -162,7 +162,7 @@ app.get('/api/nombreUsuario', (req, res) => {
 app.get('/api/comentarios', async (req, res) => {
   
     var [results] = await pool.query('SELECT c.id as id, c.idCurso, c.comentario as comentario, ' +
-    ' c.comentarista_id1, c.aceptado as aceptado, u.nombre as nombre '+
+    ' c.comentarista_id1 as comentarista_id1, c.aceptado as aceptado, u.nombre as nombre '+
     ' FROM comentario c JOIN usuarios u ON c.comentarista_id1 = u.id ' +
     ' WHERE usuarios_id = ? ', [req.session.idUsuario]);
     
@@ -174,12 +174,35 @@ app.get('/api/comentarios', async (req, res) => {
 app.post('/api/comentarios/aceptar/:id', async (req, res) => {
     const comentarioId = req.params.id;
 
-    var [results] = await pool.query('UPDATE comentario SET aceptado = "Y" WHERE id = ? ', [comentarioId]);
+    try {
+        // Primero, obtenemos el comentarista_id1 e idCurso del comentario aceptado
+        const [commentResult] = await pool.query('SELECT comentarista_id1 FROM comentario WHERE id = ?', [comentarioId]);
+        if (commentResult.length === 0) {
+            return res.status(404).json({ success: false, message: "Comentario no encontrado." });
+        }
 
-    if (!results.affectedRows) {
-        return res.status(401).json({ success: false, message: "No se encontró el comentario o ya está aceptado." });
-    } else {
-        return res.status(200).json({ success: true, message: "Comentario aceptado exitosamente." });
+        const comentaristaId1 = commentResult[0].comentarista_id1;
+
+        // Actualizamos el comentario para marcarlo como aceptado
+        const [results] = await pool.query('UPDATE comentario SET aceptado = "Y" WHERE id = ?', [comentarioId]);
+
+        if (!results.affectedRows) {
+            return res.status(401).json({ success: false, message: "No se encontró el comentario o ya está aceptado." });
+        } else {
+            // Insertamos una nueva entrada en la tabla de comentarios para cada curso del comentarista_id1
+            const [cursos] = await pool.query('SELECT DISTINCT id FROM curso WHERE usuarios_id = ?', [comentaristaId1]);
+
+            // Iteramos sobre cada curso e insertamos un nuevo comentario
+            for (const curso of cursos) {
+                const query = 'INSERT INTO comentario (idCurso, comentario, usuarios_id, comentarista_id1, aceptado) VALUES (?, ?, ?, ?, ?)';
+                await pool.query(query, [curso.id, "Intercambio de conocimientos", comentaristaId1, req.session.idUsuario, 'Y']);
+            }
+
+            return res.status(200).json({ success: true, message: "Comentario aceptado exitosamente y cursos añadidos." });
+        }
+    } catch (error) {
+        console.error('Error en la consulta SQL:', error);
+        return res.status(500).json({ success: false, message: "Error en el servidor." });
     }
 });
   
@@ -234,7 +257,7 @@ app.post('/api/comentarios', async (req, res) => {
             'INSERT INTO comentario (idCurso, comentario, usuarios_id, comentarista_id1, aceptado) VALUES (?, ?, ?, ?, "")',
             [idCurso, comentario, usuarios_id, comentarista_id1]
         );
-        return res.status(200).json({ message: "¡Trueque enviado!" });
+        return res.status(200).json({ success: true, message: "¡Trueque enviado!" });
     } catch (error) {
         return res.status(500).json({ message: "Error en el servidor." });
     }
