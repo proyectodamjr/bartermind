@@ -2,10 +2,10 @@ import path from 'path'
 const __dirname = process.cwd()
 
 module.exports = {
-  entry: './src/index.js', // El punto de entrada de tu aplicación
+  entry: './src/index.js', 
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js', // El nombre del archivo de salida
+    filename: 'bundle.js', 
   },
   module: {
     rules: [

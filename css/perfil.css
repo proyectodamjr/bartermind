@@ -4,7 +4,7 @@
     background: linear-gradient(to right, rgba(106, 17, 203, 1), rgba(37, 117, 252, 1));
 }
 .profile-container {
-    margin-top: 20px; /* Adjust as needed */
+    margin-top: 20px; 
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -24,7 +24,7 @@
 .comments {
   margin-top: 20px;
     flex: 1;
-    display: none; /* Ocultar por defecto los comentarios */
+    display: none; 
 }
 .comment {
     display: flex;

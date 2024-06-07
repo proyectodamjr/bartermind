@@ -16,11 +16,10 @@ export const SearchBar = ({ setResults }) => {
     })
       .then((response) => response.json())
       .then((json) => {
-        // Mapeamos la matriz de resultados para extraer solo los nombres
-        const resultNames = json.results.map(result => result.nombre);
-        setResults(resultNames); // Actualizamos el estado con los nombres de los resultados
+        setResults(json.results); 
       });
   };
+
   const handleChange = (value) => {
     setInput(value);
     fetchData(value);

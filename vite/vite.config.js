@@ -9,9 +9,12 @@ export default defineConfig({
     outDir: path.resolve(__dirname, '../vista'),
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'inicio.html'), // Apuntar a inicio.html
+        main: path.resolve(__dirname, 'inicio.html'), 
         upload: path.resolve(__dirname, 'upload.html'),
         perfil: path.resolve(__dirname, 'perfil.html'),
+        misCursos: path.resolve(__dirname, 'misCursos.html'),
+        nuevo: path.resolve(__dirname, 'nuevo.html'),
+        perfilUsuario: path.resolve(__dirname, 'perfilUsuario.html'),
       },
     },
   },

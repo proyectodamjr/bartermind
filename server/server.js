@@ -57,11 +57,19 @@ app.get('/perfil.html', (req, res) => {
     res.sendFile(path.join(__dirname + '/vite/perfil.html'));
 });
 
+// Ruta para los cursos que sigue el usuario
+app.get('/misCursos.html', (req, res) => {
+    res.sendFile(path.join(__dirname + '/vite/misCursos.html'));
+});
+
+// Ruta para crear un nuevo curso
+app.get('/nuevo.html', (req, res) => {
+    res.sendFile(path.join(__dirname + '/vite/nuevo.html'));
+});
+
 app.listen(PORT, () => {
     console.log(`Servidor iniciado en http://localhost:${PORT}`);
 });
-
-
 
 // Ruta para manejar las solicitudes de inicio de sesión
 app.post('/login', async (req, res) => {
@@ -69,21 +77,17 @@ app.post('/login', async (req, res) => {
     let correo = req.body.correo;
     let pass = req.body.contra;
     
-    //var [results1] = await pool.query('DELETE FROM videos WHERE id = 1');
-    console.log({body:req.body})
 
     if (correo && pass) {
 
         var [results] = await pool.query('SELECT correo, contrasena, nombre, id FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
 
         if (results.length <= 0) {
-            console.log("hay un error")
             return res.status(401).json({ success: false, message: "Credenciales incorrectas. Intente de nuevo." });
         } else{
             req.session.nombreUsuario = results[0].nombre;
             req.session.idUsuario = results[0].id;
 
-            console.log(results)
             return res.status(200).json({ success: true, message: "Inicio de sesión exitoso." });
         }
 
@@ -100,17 +104,13 @@ app.post('/signup', async (req, res) => {
     let correo = req.body.correo;
     let pass = req.body.contra;
     
-    console.log({body:req.body})
-
     if (correo && pass && usuario) {
 
         var [results] = await pool.query('INSERT INTO usuarios(correo, contrasena, nombre) VALUES(?,?,?) ', [correo, pass, usuario]);
 
         if (!results.affectedRows) {
-            console.log("hay un error")
             return res.status(401).json({ success: false, message: "Credenciales incorrectas. Intente de nuevo." });
         } else {
-            console.log(results)
             return res.status(200).json({ success: true, message: "Cuenta creada con éxito." });
         }
 
@@ -125,11 +125,9 @@ app.post('/search', async (req, res) => {
     const query = req.body.query;
 
     if (query) {
-        var [results] = await pool.query('SELECT nombre FROM usuarios WHERE nombre LIKE ?', [`%${query}%`]);
+        var [results] = await pool.query('SELECT nombre, id FROM usuarios WHERE nombre LIKE ? AND id != ? ', [`%${query}%`, req.session.idUsuario]);
         return res.status(200).json({ results });
-    } else {
-        return res.status(400).json({ message: "Por favor ingrese un término de búsqueda." });
-    }
+    } 
 });
 
 // Ruta para manejar las solicitudes de categorias
@@ -139,7 +137,17 @@ app.post('/categorias', async (req, res) => {
 
         return res.status(200).json({ results });
     } catch (error) {
-        console.error('Error en la consulta:', error);
+        return res.status(500).json({ message: "Error en el servidor." });
+    }
+});
+
+// Ruta para manejar las solicitudes de cursos del usuario
+app.post('/dropdownCursos', async (req, res) => {
+    try {
+        const [results] = await pool.query('SELECT id, nombre FROM curso WHERE usuarios_id = ? ', [req.session.idUsuario]);
+
+        return res.status(200).json({ results });
+    } catch (error) {
         return res.status(500).json({ message: "Error en el servidor." });
     }
 });
@@ -169,10 +177,8 @@ app.post('/api/comentarios/aceptar/:id', async (req, res) => {
     var [results] = await pool.query('UPDATE comentario SET aceptado = "Y" WHERE id = ? ', [comentarioId]);
 
     if (!results.affectedRows) {
-        console.log("hay un error")
         return res.status(401).json({ success: false, message: "No se encontró el comentario o ya está aceptado." });
     } else {
-        console.log(results)
         return res.status(200).json({ success: true, message: "Comentario aceptado exitosamente." });
     }
 });
@@ -181,22 +187,29 @@ app.post('/api/comentarios/aceptar/:id', async (req, res) => {
 app.post('/api/users/upload',upload.single('file'), async (req, res) => {
    
     var [result] = await pool.query('SELECT id FROM categoria WHERE nombre = ? ', [req.body.category]);
+    var [result2] = await pool.query('SELECT id FROM curso WHERE nombre = ? AND usuarios_id = ?', [req.body.curso, req.session.idUsuario]);
 
-    console.log("id de categoria: ", result[0].id)
-    console.log({'req.body': req.body})
-    console.log({'req.file': req.file})
-    console.log(req.session.idUsuario )
-    console.log(req.body.caption )
-    console.log(req.body.category )
-
-    var [results] = await pool.query('INSERT INTO videos(enlace, categoria_id, usuarios_id, titulo) VALUES(?,?,?,?) ', [req.file.filename, result[0].id, req.session.idUsuario, req.body.caption]);
+    var [results] = await pool.query('INSERT INTO videos(enlace, categoria_id, usuarios_id, titulo, idCurso) VALUES(?,?,?,?,?) ', [req.file.filename, result[0].id, req.session.idUsuario, req.body.caption, result2[0].id]);
 
     if (!results.affectedRows) {
-        console.log("hay un error")
         return res.status(401).json({ success: false, message: "Ha habido un error. Intente de nuevo." });
     } else {
-        console.log(results)
         return res.status(200).json({ success: true, message: "Video subido con éxito." });
+    }
+
+})
+
+// Ruta para crear curso nuevo
+app.post('/api/users/crearCurso', upload.none(), async (req, res) => {
+   
+    var [result] = await pool.query('SELECT id FROM categoria WHERE nombre = ? ', [req.body.category]);
+
+    var [results] = await pool.query('INSERT INTO curso(nombre, categoria_id, usuarios_id) VALUES(?,?,?) ', [req.body.caption, result[0].id, req.session.idUsuario]);
+
+    if (!results.affectedRows) {
+        return res.status(401).json({ success: false, message: "Ha habido un error. Intente de nuevo." });
+    } else {
+        return res.status(200).json({ success: true, message: "Curso creado con éxito." });
     }
 
 })
@@ -204,17 +217,93 @@ app.post('/api/users/upload',upload.single('file'), async (req, res) => {
 // Ruta para obtener todos los videos
 app.get('/api/videos', async (req, res) => {
     try {
-        const [results] = await pool.query('SELECT enlace FROM videos');
-        const videoUrls = results.map(result => result.enlace);
-        return res.status(200).json({ videoUrls });
+        const [results] = await pool.query('SELECT id, enlace, titulo, idCurso, usuarios_id FROM videos WHERE usuarios_id != ?', [req.session.idUsuario]);
+        return res.status(200).json({ videos: results });
     } catch (error) {
-        console.error('Error en la consulta:', error);
         return res.status(500).json({ message: "Error en el servidor." });
     }
 });
 
+// Ruta para pedir un trueque
+app.post('/api/comentarios', async (req, res) => {
+    const { comentario, idCurso, video_id, usuarios_id } = req.body;
+    const comentarista_id1 = req.session.idUsuario; 
 
-// Ruta para eliminar un video por su id
-app.delete('/eliminarVideo', async (req, res) => {
-    pool.query('DELETE * FROM videos WHERE id = 1');
+    try {
+        const [result] = await pool.query(
+            'INSERT INTO comentario (idCurso, comentario, usuarios_id, comentarista_id1, aceptado) VALUES (?, ?, ?, ?, "")',
+            [idCurso, comentario, usuarios_id, comentarista_id1]
+        );
+        return res.status(200).json({ message: "Comentario insertado correctamente." });
+    } catch (error) {
+        return res.status(500).json({ message: "Error en el servidor." });
+    }
+});
+
+//Ruta para ver los videos desde el perfil
+app.get('/api/videos/subidos', async (req, res) => {
+    try {
+        const userId = req.session.idUsuario;
+        const query = `
+            SELECT v.id, v.enlace, v.titulo, v.idCurso, c.nombre AS nombreCurso
+            FROM videos v
+            JOIN curso c ON v.idCurso = c.id
+            WHERE v.usuarios_id = ?;
+        `;
+        const [results] = await pool.query(query, [userId]);
+        return res.status(200).json({ videos: results });
+    } catch (error) {
+        return res.status(500).json({ message: "Error en el servidor." });
+    }
+});
+
+// Ruta para ver los videos seguidos
+app.get('/api/cursoVideos/seguidos', async (req, res) => {
+    try {
+        const query = `
+            SELECT DISTINCT v.id, v.enlace, v.titulo, v.idCurso, c.nombre AS nombreCurso
+            FROM videos v
+            JOIN curso c ON v.idCurso = c.id
+            JOIN comentario com ON v.idCurso = com.idCurso
+            WHERE com.aceptado = 'y' AND com.comentarista_id1 = ?;
+        `;
+        const [results] = await pool.query(query, [req.session.idUsuario]);
+        return res.status(200).json({ videos: results });
+    } catch (error) {
+        return res.status(500).json({ message: "Error en el servidor." });
+    }
+});
+
+// Ruta para obtener información del usuario por ID
+app.get('/api/usuarios/:id', async (req, res) => {
+    const userId = req.params.id;
+    try {
+        var [user] = await pool.query('SELECT * FROM usuarios WHERE id = ?', [userId]);
+        if (user.length > 0) {
+            res.status(200).json(user[0]);
+        } else {
+            res.status(404).json({ message: "Usuario no encontrado." });
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Error en el servidor." });
+    }
+});
+
+
+// Ruta para obtener videos del usuario por ID
+app.get('/api/videos/perfilUsuario/:id', async (req, res) => {
+    const userId = req.params.id;
+    try {
+        const query = `
+            SELECT DISTINCT v.id, v.enlace, v.titulo, v.idCurso, c.nombre AS nombreCurso
+            FROM videos v
+            JOIN curso c ON v.idCurso = c.id
+            JOIN comentario com ON v.idCurso = com.idCurso
+            WHERE com.aceptado = 'y' AND com.comentarista_id1 = ? ;
+        `;
+        const [results] = await pool.query(query, [userId]);
+        return res.status(200).json({ videos: results });
+    } catch (error) {
+        return res.status(500).json({ message: "Error en el servidor." });
+    }
 });

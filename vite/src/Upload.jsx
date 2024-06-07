@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import UploadPicture from "./components/UploadPicture.jsx";
 
 function Upload() {
