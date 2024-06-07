@@ -41,13 +41,13 @@ const VideoList = () => {
             });
             const result = await response.json();
             if (response.ok) {
-                swal("¡Comentario insertado!", "El comentario se ha insertado correctamente.", "success");
+                swal("¡Trueque enviado!", "El comentario se ha enviado correctamente.", "success");
             } else {
                 swal("Error", result.message, "error");
             }
         } catch (error) {
             console.error('Error inserting comment:', error);
-            swal("Error", "No se pudo insertar el comentario.", "error");
+            swal("Error", "No se pudo enviar el comentario.", "error");
         }
     };
 
