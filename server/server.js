@@ -234,7 +234,7 @@ app.post('/api/comentarios', async (req, res) => {
             'INSERT INTO comentario (idCurso, comentario, usuarios_id, comentarista_id1, aceptado) VALUES (?, ?, ?, ?, "")',
             [idCurso, comentario, usuarios_id, comentarista_id1]
         );
-        return res.status(200).json({ message: "Comentario insertado correctamente." });
+        return res.status(200).json({ message: "¡Trueque enviado!" });
     } catch (error) {
         return res.status(500).json({ message: "Error en el servidor." });
     }
