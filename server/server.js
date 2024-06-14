@@ -119,6 +119,17 @@ app.post('/signup', async (req, res) => {
 
 });
 
+// Ruta para cerrar sesión
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: 'No se pudo cerrar la sesión. Intente de nuevo.' });
+        }
+        res.clearCookie('connect.sid'); 
+        res.redirect('/'); 
+    });
+});
+
 // Ruta para manejar las solicitudes de búsqueda
 app.post('/search', async (req, res) => {
     const query = req.body.query;
