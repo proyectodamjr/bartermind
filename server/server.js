@@ -35,15 +35,18 @@ app.use("/images", express.static("./images"));
 app.use("/uploads", express.static("./uploads"));
 app.use(express.static(viewsPath));
 
-app.use((req, res, next) => {
-    if (req.url.endsWith('.jsx')) {
-        res.type('application/javascript');
+// Middleware para verificar si hay sesión
+const isAuthenticated = async (req, res, next) => {
+    if (req.session.idUsuario !== undefined) {
+       return next();
+    } else {
+        console.log("aaaaaa")
+        return res.sendFile(path.join(__dirname, 'vista', 'login.html'));
     }
-    next();
-});
+};
 
 // Ruta para servir inicio.html desde vite
-app.get('/inicio.html', (req, res) => {
+app.get('/inicio.html', isAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname + '/vite/inicio.html'));
 });
 
@@ -65,10 +68,6 @@ app.get('/misCursos.html', (req, res) => {
 // Ruta para crear un nuevo curso
 app.get('/nuevo.html', (req, res) => {
     res.sendFile(path.join(__dirname + '/vite/nuevo.html'));
-});
-
-app.listen(PORT, () => {
-    console.log(`Servidor iniciado en http://localhost:${PORT}`);
 });
 
 // Ruta para manejar las solicitudes de inicio de sesión
@@ -328,4 +327,8 @@ app.get('/api/videos/perfilUsuario/:id', async (req, res) => {
     } catch (error) {
         return res.status(500).json({ message: "Error en el servidor." });
     }
+});
+
+app.listen(PORT, () => {
+    console.log(`Servidor iniciado en http://localhost:${PORT}`);
 });

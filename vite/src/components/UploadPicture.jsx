@@ -11,11 +11,23 @@ const UploadPicture = () => {
   const [curso, setCurso] = useState("");
 
   const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
+    const file = event.target.files[0];
+    const allowedFileTypes = /(\.mp4|\.mkv)$/i;
+    if (!allowedFileTypes.test(file.name)) {
+      swal({
+        title: "Error",
+        text: "Solo se permiten archivos en formato .mp4 y .mkv",
+        icon: "error"
+      });
+      setSelectedFile(null);
+      event.target.value = null; // Clear the input
+      return;
+    }
+    setSelectedFile(file);
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return; 
+    if (!selectedFile) return;
 
     const formData = new FormData();
     formData.append("file", selectedFile);
@@ -33,25 +45,25 @@ const UploadPicture = () => {
         title: "Subida exitosa!",
         text: data.message,
         icon: "success"
-    }).then(() => {
-        window.location.href = '/perfil.html'; 
-    });
+      }).then(() => {
+        window.location.href = '/perfil.html';
+      });
     } catch (error) {
       console.error(error);
-      
+
       swal({
         title: "Error",
-        text: data.message,
+        text: "Ocurrió un error al subir el video.",
         icon: "error"
-    });
+      });
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="grid grid-cols-1 gap-4 max-w-sm">
-      <h1>Subir video</h1>
-        <div class="mt-3">
+        <h1>Subir video</h1>
+        <div className="mt-3">
           <label
             htmlFor="file"
             className="block text-sm font-medium text-gray-700"
@@ -66,7 +78,7 @@ const UploadPicture = () => {
             className="focus:ring-indigo-500 focus:border-indigo-500 rounded-md sm:text-sm px-3 py-2 border border-gray-300"
           />
         </div>
-        <div class="mt-3">
+        <div className="mt-3">
           <label
             htmlFor="caption"
             className="block text-sm font-medium text-gray-700"
@@ -84,7 +96,7 @@ const UploadPicture = () => {
           />
         </div>
 
-        <div class="mt-3">
+        <div className="mt-3">
           <label
             htmlFor="category"
             className="block text-sm font-medium text-gray-700"
@@ -93,8 +105,8 @@ const UploadPicture = () => {
           </label>
           <SelectDropdown setCategory={setCategory} />
         </div>
-       
-        <div class="mt-3">
+
+        <div className="mt-3">
           <label
             htmlFor="curso"
             className="block text-sm font-medium text-gray-700"
@@ -109,11 +121,11 @@ const UploadPicture = () => {
             type="button"
             onClick={handleUpload}
             disabled={!selectedFile || !caption || !category || !curso}
-            class="btn btn-outline-primary mt-3"
+            className="btn btn-outline-primary mt-3"
           >
             Upload
           </button>
-          <a class="btn btn-outline-danger mt-3 ms-3" href="/perfil.html">Cancelar</a>
+          <a className="btn btn-outline-danger mt-3 ms-3" href="/perfil.html">Cancelar</a>
         </div>
       </div>
       <div>
