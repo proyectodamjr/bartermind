@@ -4,6 +4,7 @@ import swal from 'sweetalert';
 
 const VideoList = () => {
     const [videos, setVideos] = useState([]);
+    const [user, setUser] = useState([]);
 
     useEffect(() => {
         const fetchVideos = async () => {
@@ -21,7 +22,18 @@ const VideoList = () => {
             }
         };
 
+        const fetchUser = async () => {
+            try {
+                const response = await fetch('/api/user'); 
+                const userData = await response.json();
+                setUser(userData);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
         fetchVideos();
+        fetchUser();
     }, []);
 
     const handleTruequeClick = async (video) => {
@@ -51,6 +63,33 @@ const VideoList = () => {
         }
     };
 
+    const handleEliminar = async (video) => {
+        try {
+            const response = await fetch('/api/eliminarVideo', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    comentario: 'Tu video ha sido eliminado por un administrador',
+                    idCurso: video.idCurso, 
+                    usuarios_id: video.usuarios_id,
+                    comentarista_id1: 1, 
+                    video_id: video.id 
+                }),
+            });
+            const result = await response.json();
+            if (response.ok) {
+                swal("¡Video eliminado!", "El video ha sido eliminado correctamente.", "success");
+            } else {
+                swal("Error", result.message, "error");
+            }
+        } catch (error) {
+            console.error('Error inserting comment:', error);
+            swal("Error", "No se pudo eliminar el video.", "error");
+        }
+    };
+
     return (
         <div className="container d-flex flex-column">
             {videos.map((video) => (
@@ -66,6 +105,12 @@ const VideoList = () => {
                         <button className="btn btn-primary" onClick={() => handleTruequeClick(video)}>
                             Trueque
                         </button>
+                        <br/>
+                        {user.admin === 'S' && (
+                            <button className="btn btn-danger mt-1" onClick={() => handleEliminar(video)}>
+                                Eliminar
+                            </button>
+                        )}
                     </div>
                     
                 </div>

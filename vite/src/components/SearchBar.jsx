@@ -25,6 +25,12 @@ export const SearchBar = ({ setResults }) => {
     fetchData(value);
   };
 
+  const handleOnKeyDown = ({ key }) => {
+    if (key === "Enter") {
+      window.location.href = `/resultado/${input}`;
+    }
+  };
+//onKeyDown
   return (
     <div className="input-wrapper">
       <FaSearch id="search-icon" />
@@ -32,6 +38,7 @@ export const SearchBar = ({ setResults }) => {
         placeholder="Buscar..."
         value={input}
         onChange={(e) => handleChange(e.target.value)}
+        onKeyDown={handleOnKeyDown}
       />
     </div>
   );

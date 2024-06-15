@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 text: result.message,
                 icon: "success"
             }).then(() => {
-                window.location.href = 'index.html'; 
+                window.location.href = '/'; 
             });
         } else {
             swal({

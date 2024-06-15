@@ -1,6 +1,7 @@
 import express from 'express'
 import session from 'express-session'
 import path from 'path'
+import fs from 'fs'
 import {pool} from './db.js'
 import { PORT } from './config.js'
 import bodyParser from 'body-parser'
@@ -9,9 +10,7 @@ import { upload } from './middlewares/multer.js'
 
 const app = express()
 const __dirname = process.cwd()
-const viewsPath = path.join(__dirname, '../vista');
-app.set('view engine', 'ejs');
-app.set('views', __dirname + '/vista');
+const buildPath = path.join(__dirname, './react');
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
@@ -27,47 +26,65 @@ app.get('/', function(req, res) {
    res.sendFile(path.join(__dirname + '/vista/index.html'));
 })
 
-app.use(express.static('./vista'))
 app.use("/js", express.static('./js'))
 app.use("/css", express.static('./css'))
 app.use("/vite", express.static('./vite'))
 app.use("/images", express.static("./images"));
 app.use("/uploads", express.static("./uploads"));
-app.use(express.static(viewsPath));
 
 // Middleware para verificar si hay sesión
-const isAuthenticated = async (req, res, next) => {
-    if (req.session.idUsuario !== undefined) {
-       return next();
-    } else {
-        console.log("aaaaaa")
-        return res.sendFile(path.join(__dirname, 'vista', 'login.html'));
+app.use((req, res, next) => {
+    const allowedPaths = ['/about.html', '/signup.html', '/login.html', '/', '/login'];
+
+    // Si la ruta actual no está en allowedPaths y no hay sesión, redirige a /login.html
+    if (!allowedPaths.includes(req.path) && req.session.idUsuario === undefined) {
+        return res.redirect('/login.html'); // Use return to terminate further processing
     }
-};
+
+    next(); // Llamar next() solo si no redirigimos
+});
+
+app.use(express.static(buildPath));
+
 
 // Ruta para servir inicio.html desde vite
-app.get('/inicio.html', isAuthenticated, (req, res) => {
-    res.sendFile(path.join(__dirname + '/vite/inicio.html'));
+app.get('/inicio.html', (req, res) => {
+    res.sendFile(path.join(buildPath + '/inicio.html'));
 });
 
 // Ruta para servir upload.html desde vite
 app.get('/upload.html', (req, res) => {
-    res.sendFile(path.join(__dirname + '/vite/upload.html'));
+    res.sendFile(path.join(buildPath + '/upload.html'));
 });
 
 // Ruta para el perfil del usuario
 app.get('/perfil.html', (req, res) => {
-    res.sendFile(path.join(__dirname + '/vite/perfil.html'));
+    res.sendFile(path.join(buildPath + '/perfil.html'));
 });
 
 // Ruta para los cursos que sigue el usuario
 app.get('/misCursos.html', (req, res) => {
-    res.sendFile(path.join(__dirname + '/vite/misCursos.html'));
+    res.sendFile(path.join(buildPath + '/misCursos.html'));
 });
 
 // Ruta para crear un nuevo curso
 app.get('/nuevo.html', (req, res) => {
-    res.sendFile(path.join(__dirname + '/vite/nuevo.html'));
+    res.sendFile(path.join(buildPath + '/nuevo.html'));
+});
+
+// Ruta para loguearse
+app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname + '/vista/login.html'));
+});
+
+// Ruta para ir a crear usuario
+app.get('/signup.html', (req, res) => {
+    res.sendFile(path.join(__dirname + '/vista/signup.html'));
+});
+
+// Ruta para ir al about
+app.get('/about.html', (req, res) => {
+    res.sendFile(path.join(__dirname + '/vista/about.html'));
 });
 
 // Ruta para manejar las solicitudes de inicio de sesión
@@ -79,13 +96,14 @@ app.post('/login', async (req, res) => {
 
     if (correo && pass) {
 
-        var [results] = await pool.query('SELECT correo, contrasena, nombre, id FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
+        var [results] = await pool.query('SELECT correo, contrasena, nombre, id, admin FROM usuarios WHERE correo = ? AND contrasena = ?', [correo, pass])
 
         if (results.length <= 0) {
             return res.status(401).json({ success: false, message: "Credenciales incorrectas. Intente de nuevo." });
         } else{
             req.session.nombreUsuario = results[0].nombre;
             req.session.idUsuario = results[0].id;
+            req.session.admin = results[0].admin;
 
             return res.status(200).json({ success: true, message: "Inicio de sesión exitoso." });
         }
@@ -298,7 +316,7 @@ app.get('/api/cursoVideos/seguidos', async (req, res) => {
             FROM videos v
             JOIN curso c ON v.idCurso = c.id
             JOIN comentario com ON v.idCurso = com.idCurso
-            WHERE com.aceptado = 'y' AND com.comentarista_id1 = ?;
+            WHERE com.aceptado = 'Y' AND com.comentarista_id1 = ?;
         `;
         const [results] = await pool.query(query, [req.session.idUsuario]);
         return res.status(200).json({ videos: results });
@@ -326,6 +344,84 @@ app.get('/api/usuarios/:id', async (req, res) => {
 // Ruta para obtener videos del usuario por ID
 app.get('/api/videos/perfilUsuario/:id', async (req, res) => {
     const userId = req.params.id;
+    try {
+        const query = `
+            SELECT v.id, v.enlace, v.titulo, v.idCurso, c.nombre AS nombreCurso
+            FROM videos v
+            JOIN curso c ON v.idCurso = c.id
+            WHERE v.usuarios_id = ?;
+        `;
+        const [results] = await pool.query(query, [userId]);
+        return res.status(200).json({ videos: results });
+    } catch (error) {
+        return res.status(500).json({ message: "Error en el servidor." });
+    }
+});
+
+// Ruta para eliminar videos
+app.delete('/api/eliminarVideo', async (req, res) => {
+    const { video_id, comentario, idCurso, usuarios_id } = req.body;
+    const comentarista_id1 = req.session.idUsuario;
+
+    try {
+        // Obtener la información del video para eliminar el archivo
+        const [videoResult] = await pool.query('SELECT enlace FROM videos WHERE id = ?', [video_id]);
+
+        if (videoResult.length === 0) {
+            return res.status(404).json({ success: false, message: "Video no encontrado." });
+        }
+
+        const videoPath = path.join(__dirname, 'uploads', videoResult[0].enlace);
+
+        // Eliminar el registro del video en la base de datos
+        const [deleteResult] = await pool.query('DELETE FROM videos WHERE id = ?', [video_id]);
+
+        if (!deleteResult.affectedRows) {
+            return res.status(401).json({ success: false, message: "No se encontró el video." });
+        } else {
+            // Eliminar el archivo del video del sistema de archivos
+            fs.unlink(videoPath, async (err) => {
+                if (err) {
+                    console.error('Error al eliminar el archivo:', err);
+                    return res.status(500).json({ success: false, message: "Error al eliminar el archivo del video." });
+                }
+
+                // Insertar el comentario informando al usuario
+                try {
+                    const [commentResult] = await pool.query(
+                        'INSERT INTO comentario (idCurso, comentario, usuarios_id, comentarista_id1, aceptado) VALUES (?, ?, ?, ?, "Y")',
+                        [idCurso, comentario, usuarios_id, comentarista_id1]
+                    );
+                    return res.status(200).json({ success: true, message: "Video eliminado exitosamente y comentario enviado." });
+                } catch (commentError) {
+                    console.error('Error al insertar el comentario:', commentError);
+                    return res.status(500).json({ success: false, message: "Video eliminado, pero ocurrió un error al insertar el comentario." });
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error en la consulta SQL:', error);
+        return res.status(500).json({ success: false, message: "Error en el servidor." });
+    }
+});
+
+app.get('/api/user', (req, res) => {
+    if (!req.session.admin) {
+        return res.status(401).json({ message: 'Usuario no autenticado' });
+    }
+    
+    const userData = {
+        id: req.session.idUsuario, 
+        admin: req.session.admin 
+    };
+
+    return res.status(200).json(userData);
+});
+
+// Ruta para obtener videos del usuario por ID
+app.get('/resultado/:id', async (req, res) => {
+    const consulta = req.params.id;
+    console.log(consulta)
     try {
         const query = `
             SELECT v.id, v.enlace, v.titulo, v.idCurso, c.nombre AS nombreCurso

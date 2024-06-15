@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   root: path.resolve(__dirname),
   build: {
-    outDir: path.resolve(__dirname, '../vista'),
+    outDir: path.resolve(__dirname, '../react'),
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'inicio.html'), 
