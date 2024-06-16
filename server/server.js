@@ -6,6 +6,7 @@ import {pool} from './db.js'
 import { PORT } from './config.js'
 import bodyParser from 'body-parser'
 import { upload } from './middlewares/multer.js'
+import { Console } from 'console'
 
 
 const app = express()
@@ -389,7 +390,7 @@ app.delete('/api/eliminarVideo', async (req, res) => {
                 // Insertar el comentario informando al usuario
                 try {
                     const [commentResult] = await pool.query(
-                        'INSERT INTO comentario (idCurso, comentario, usuarios_id, comentarista_id1, aceptado) VALUES (?, ?, ?, ?, "Y")',
+                        'INSERT INTO comentario (idCurso, comentario, usuarios_id, comentarista_id1, aceptado) VALUES (?, ?, ?, ?, "E")',
                         [idCurso, comentario, usuarios_id, comentarista_id1]
                     );
                     return res.status(200).json({ success: true, message: "Video eliminado exitosamente y comentario enviado." });
@@ -403,6 +404,29 @@ app.delete('/api/eliminarVideo', async (req, res) => {
         console.error('Error en la consulta SQL:', error);
         return res.status(500).json({ success: false, message: "Error en el servidor." });
     }
+});
+
+// Eliminar video del usuario
+app.delete('/api/eliminarVideo/todos/:id', async (req, res) => {
+    const videoId = req.params.id;
+
+    const videoPath = path.join(__dirname, 'uploads', videoId);
+
+    // Eliminamos el archivo de video del sistema de archivos
+    fs.unlink(videoPath, async (err) => {
+        if (err) {
+            console.error('Error al eliminar el archivo de video:', err);
+            return res.status(500).json({ success: false, message: 'Error al eliminar el archivo de video' });
+        }
+
+        const [deleteResult] = await pool.query('DELETE FROM videos WHERE enlace = ?', [videoId]);
+
+        if (!deleteResult.affectedRows) {
+            return res.status(500).json({ success: false, message: 'Error al eliminar el video de la base de datos' });
+        } else {
+            return res.status(200).json({ success: true, message: 'Video eliminado correctamente' });
+        }
+    });
 });
 
 app.get('/api/user', (req, res) => {
