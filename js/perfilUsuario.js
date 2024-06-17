@@ -5,14 +5,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('id');
 
+    let isAdmin = false;
+
     if (userId) {
         fetch(`/api/usuarios/${userId}`)
             .then(response => response.json())
             .then(user => {
                 const userInfo = document.createElement('h2');
-                userInfo.textContent = `
-                    ${user.nombre}
-                `;
+                userInfo.textContent = `${user.nombre}`;
                 userProfileContainer.appendChild(userInfo);
             })
             .catch(error => {
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function() {
         userProfileContainer.innerHTML = '<p>ID de usuario no proporcionado.</p>';
     }
 
-     const mostrarVideos = (videos) => {
+    const mostrarVideos = (videos) => {
         videosContainer.innerHTML = '';
 
         const cursos = {};
@@ -64,6 +64,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 videoElement.appendChild(sourceElement);
                 videoContainer.appendChild(videoElement);
                 videoContainer.appendChild(h4Element);
+
+                if (isAdmin) {
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Eliminar';
+                    deleteButton.classList.add('btn', 'btn-danger', 'mt-1');
+                    deleteButton.addEventListener('click', () => handleEliminar(video));
+                    videoContainer.appendChild(deleteButton);
+                }
+
                 videosRow.appendChild(videoContainer);
             });
 
@@ -83,5 +92,50 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     };
 
-    cargarVideos();
+    const handleEliminar = async (video) => {
+        try {
+            const response = await fetch('/api/eliminarVideo', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    comentario: 'Tu video ha sido eliminado por un administrador',
+                    idCurso: video.idCurso,
+                    usuarios_id: userId,
+                    comentarista_id1: 1,
+                    video_id: video.id
+                }),
+            });
+            const result = await response.json();
+            if (response.ok) {
+                swal({
+                    title: "¡Video eliminado!",
+                    text: result.message,
+                    icon: "success"
+                }).then(() => {
+                    cargarVideos();
+                });
+            } else {
+                swal("Error", result.message, "error");
+            }
+        } catch (error) {
+            console.error('Error eliminando el video:', error);
+            alert("Error al eliminar el video.");
+        }
+    };
+
+    const verificarAdmin = () => {
+        fetch('/api/user')
+            .then(response => response.json())
+            .then(user => {
+                isAdmin = user.admin === 'S';
+                cargarVideos();
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+            });
+    };
+
+    verificarAdmin();
 });

@@ -6,7 +6,6 @@ import {pool} from './db.js'
 import { PORT } from './config.js'
 import bodyParser from 'body-parser'
 import { upload } from './middlewares/multer.js'
-import { Console } from 'console'
 
 
 const app = express()
@@ -35,7 +34,7 @@ app.use("/uploads", express.static("./uploads"));
 
 // Middleware para verificar si hay sesión
 app.use((req, res, next) => {
-    const allowedPaths = ['/about.html', '/signup.html', '/login.html', '/', '/login'];
+    const allowedPaths = ['/about.html', '/signup.html', '/login.html', '/', '/login', '/signup'];
 
     // Si la ruta actual no está en allowedPaths y no hay sesión, redirige a /login.html
     if (!allowedPaths.includes(req.path) && req.session.idUsuario === undefined) {
