@@ -1,12 +1,15 @@
 import "../css/SearchResultsList.css";
 import { SearchResult } from "./SearchResult.jsx";
 
-export const SearchResultsList = ({ results }) => {
+export const SearchResultsList = ({ results, usuarios }) => {
   return (
     <div className="results-list">
-      {results.map((result) => {
-        return <SearchResult key={result.id} result={result} />;
-      })}
+      {usuarios.map((usuario) => (
+        <SearchResult key={usuario.id} result={usuario} type="usuario" />
+      ))}
+      {results.map((result) => (
+        <SearchResult key={result.id} result={result} type="video" />
+      ))}
     </div>
   );
 };

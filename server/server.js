@@ -72,6 +72,11 @@ app.get('/nuevo.html', (req, res) => {
     res.sendFile(path.join(buildPath + '/nuevo.html'));
 });
 
+// Ruta para buscador
+app.get('/resultado.html', (req, res) => {
+    res.sendFile(path.join(buildPath + '/resultado.html'));
+});
+
 // Ruta para loguearse
 app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname + '/vista/login.html'));
@@ -153,8 +158,21 @@ app.post('/search', async (req, res) => {
     const query = req.body.query;
 
     if (query) {
-        var [results] = await pool.query('SELECT nombre, id FROM usuarios WHERE nombre LIKE ? AND id != ? ', [`%${query}%`, req.session.idUsuario]);
-        return res.status(200).json({ results });
+        var [results] = await pool.query(`
+            SELECT v.id, v.enlace as enlace, v.titulo as titulo, v.idCurso, v.categoria_id, v.usuarios_id, c.nombre AS nombreCurso, 
+            u.nombre as nombreUsuario, cat.nombre as nombreCategoria 
+            FROM videos v
+            JOIN curso c ON v.idCurso = c.id
+            JOIN usuarios u ON v.usuarios_id = u.id
+            JOIN categoria cat ON v.categoria_id = cat.id
+            WHERE v.titulo LIKE ? AND v.usuarios_id != ?;
+        `, [`%${query}%`,
+             req.session.idUsuario]);
+        const [usuarios] = await pool.query(`
+            SELECT nombre, id FROM usuarios WHERE nombre LIKE ? AND id != ?;
+        `, [`%${query}%`, req.session.idUsuario]);
+        
+        return res.status(200).json({ results, usuarios });
     } 
 });
 
@@ -447,13 +465,19 @@ app.get('/resultado/:id', async (req, res) => {
     console.log(consulta)
     try {
         const query = `
-            SELECT v.id, v.enlace, v.titulo, v.idCurso, c.nombre AS nombreCurso
+            SELECT v.id, v.enlace as enlace, v.titulo as titulo, v.idCurso, v.categoria_id, v.usuarios_id, c.nombre AS nombreCurso, 
+            u.nombre as nombreUsuario, cat.nombre as nombreCategoria 
             FROM videos v
             JOIN curso c ON v.idCurso = c.id
-            WHERE v.usuarios_id = ?;
+            JOIN usuarios u ON v.usuarios_id = u.id
+            JOIN categoria cat ON v.categoria_id = cat.id
+            WHERE v.titulo LIKE ? AND v.usuarios_id != ?;
         `;
-        const [results] = await pool.query(query, [userId]);
-        return res.status(200).json({ videos: results });
+        const [videos] = await pool.query(query, [`%${consulta}%`,`%${consulta}%`, req.session.idUsuario]);
+        const [usuarios] = await pool.query('SELECT nombre, id FROM usuarios WHERE nombre LIKE ? AND id != ? ', [`%${consulta}%`, req.session.idUsuario]);
+        console.log(videos)
+        console.log(usuarios)
+        return res.status(200).json({ videos: videos , usuarios: usuarios});
     } catch (error) {
         return res.status(500).json({ message: "Error en el servidor." });
     }

@@ -16,13 +16,16 @@ export const SearchBar = ({ setResults }) => {
     })
       .then((response) => response.json())
       .then((json) => {
-        setResults(json.results); 
+        setResults({ results: json.results, usuarios: json.usuarios });
       });
   };
-
   const handleChange = (value) => {
     setInput(value);
-    fetchData(value);
+    if (value.trim() === "") {
+      setResults({ results: [], usuarios: [] });
+    } else {
+      fetchData(value);
+    }
   };
 
   const handleOnKeyDown = ({ key }) => {

@@ -1,14 +1,17 @@
 import "../css/SearchResult.css";
 
-export const SearchResult = ({ result }) => {
+export const SearchResult = ({ result, type }) => {
   const handleClick = () => {
-    // Redirige a la página de perfil con el id del usuario
-    window.location.href = `/perfilUsuario.html?id=${result.id}`;
+    if (type === 'usuario') {
+      window.location.href = `/perfilUsuario.html?id=${result.id}`;
+    } else if (type === 'video') {
+      window.location.href = `/resultado.html?id=${result.id}`;
+    }
   };
 
   return (
     <div className="search-result" onClick={handleClick}>
-      {result.nombre}
+      {type === 'usuario' ? result.nombre : result.titulo}
     </div>
   );
 };
