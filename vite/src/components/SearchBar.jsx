@@ -2,8 +2,9 @@ import { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 
 import "../css/SearchBar.css";
+import SelectCategory from "./SelectCategory";
 
-export const SearchBar = ({ setResults }) => {
+export const SearchBar = ({ setResults, handleCategory, category }) => {
   const [input, setInput] = useState("");
 
   const fetchData = (value) => {
@@ -30,9 +31,9 @@ export const SearchBar = ({ setResults }) => {
 
   const handleOnKeyDown = ({ key }) => {
     if (key === "Enter") {
-      window.location.href = `/resultado/${input}`;
+        window.location.href = `/resultado.html?query=${input}&category=${category}`;
     }
-  };
+};
 //onKeyDown
   return (
     <div className="input-wrapper">
@@ -43,6 +44,7 @@ export const SearchBar = ({ setResults }) => {
         onChange={(e) => handleChange(e.target.value)}
         onKeyDown={handleOnKeyDown}
       />
+      <SelectCategory handleCategory={handleCategory} />
     </div>
   );
 };

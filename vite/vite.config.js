@@ -15,6 +15,7 @@ export default defineConfig({
         misCursos: path.resolve(__dirname, 'misCursos.html'),
         nuevo: path.resolve(__dirname, 'nuevo.html'),
         perfilUsuario: path.resolve(__dirname, 'perfilUsuario.html'),
+        resultado: path.resolve(__dirname, 'resultado.html'),
       },
     },
   },

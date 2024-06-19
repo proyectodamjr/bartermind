@@ -38,10 +38,10 @@ app.use((req, res, next) => {
 
     // Si la ruta actual no está en allowedPaths y no hay sesión, redirige a /login.html
     if (!allowedPaths.includes(req.path) && req.session.idUsuario === undefined) {
-        return res.redirect('/login.html'); // Use return to terminate further processing
+        return res.redirect('/login.html'); 
     }
 
-    next(); // Llamar next() solo si no redirigimos
+    next();
 });
 
 app.use(express.static(buildPath));
@@ -221,7 +221,6 @@ app.post('/api/comentarios/aceptar/:id', async (req, res) => {
     const comentarioId = req.params.id;
 
     try {
-        // Primero, obtenemos el comentarista_id1 e idCurso del comentario aceptado
         const [commentResult] = await pool.query('SELECT comentarista_id1 FROM comentario WHERE id = ?', [comentarioId]);
         if (commentResult.length === 0) {
             return res.status(404).json({ success: false, message: "Comentario no encontrado." });
@@ -229,16 +228,13 @@ app.post('/api/comentarios/aceptar/:id', async (req, res) => {
 
         const comentaristaId1 = commentResult[0].comentarista_id1;
 
-        // Actualizamos el comentario para marcarlo como aceptado
         const [results] = await pool.query('UPDATE comentario SET aceptado = "Y" WHERE id = ?', [comentarioId]);
 
         if (!results.affectedRows) {
             return res.status(401).json({ success: false, message: "No se encontró el comentario o ya está aceptado." });
         } else {
-            // Insertamos una nueva entrada en la tabla de comentarios para cada curso del comentarista_id1
             const [cursos] = await pool.query('SELECT DISTINCT id FROM curso WHERE usuarios_id = ?', [comentaristaId1]);
 
-            // Iteramos sobre cada curso e insertamos un nuevo comentario
             for (const curso of cursos) {
                 const query = 'INSERT INTO comentario (idCurso, comentario, usuarios_id, comentarista_id1, aceptado) VALUES (?, ?, ?, ?, ?)';
                 await pool.query(query, [curso.id, "Intercambio de conocimientos", comentaristaId1, req.session.idUsuario, 'Y']);
@@ -382,7 +378,6 @@ app.delete('/api/eliminarVideo', async (req, res) => {
     const comentarista_id1 = req.session.idUsuario;
 
     try {
-        // Obtener la información del video para eliminar el archivo
         const [videoResult] = await pool.query('SELECT enlace FROM videos WHERE id = ?', [video_id]);
 
         if (videoResult.length === 0) {
@@ -391,13 +386,11 @@ app.delete('/api/eliminarVideo', async (req, res) => {
 
         const videoPath = path.join(__dirname, 'uploads', videoResult[0].enlace);
 
-        // Eliminar el registro del video en la base de datos
         const [deleteResult] = await pool.query('DELETE FROM videos WHERE id = ?', [video_id]);
 
         if (!deleteResult.affectedRows) {
             return res.status(401).json({ success: false, message: "No se encontró el video." });
         } else {
-            // Eliminar el archivo del video del sistema de archivos
             fs.unlink(videoPath, async (err) => {
                 if (err) {
                     console.error('Error al eliminar el archivo:', err);
@@ -446,6 +439,53 @@ app.delete('/api/eliminarVideo/todos/:id', async (req, res) => {
     });
 });
 
+// Eliminar usuario y sus datos relacionados
+app.delete('/api/eliminarUsuario', async (req, res) => {
+    const { usuario_id, comentario, comentarista_id } = req.body;
+
+    try {
+        await pool.query('START TRANSACTION');
+
+        await pool.query('DELETE FROM comentario WHERE usuarios_id = ?', [usuario_id]);
+
+        await pool.query('DELETE FROM curso WHERE usuarios_id = ?', [usuario_id]);
+
+        const [videosResult] = await pool.query('SELECT id, enlace FROM videos WHERE usuarios_id = ?', [usuario_id]);
+
+        for (const video of videosResult) {
+            const videoPath = path.join(__dirname, 'uploads', video.enlace);
+            
+            try {
+                await fs.promises.unlink(videoPath);
+            } catch (err) {
+                console.error('Error al eliminar archivo de video:', err);
+                throw new Error('Error al eliminar archivo de video');
+            }
+
+            try {
+                await pool.query('DELETE FROM videos WHERE id = ?', [video.id]);
+            } catch (err) {
+                console.error('Error al eliminar registro de video:', err);
+                throw new Error('Error al eliminar registro de video');
+            }
+        }
+
+        await pool.query('DELETE FROM usuarios WHERE id = ?', [usuario_id]);
+
+        await pool.query('COMMIT');
+
+        return res.status(200).json({ success: true, message: 'Usuario eliminado correctamente y comentario enviado.' });
+
+    } catch (error) {
+        // En caso de error, revertir la transacción
+        await pool.query('ROLLBACK');
+        console.error('Error al eliminar usuario y sus datos relacionados:', error);
+        return res.status(500).json({ success: false, message: 'Error al eliminar usuario y sus datos relacionados.' });
+    }
+});
+
+
+
 app.get('/api/user', (req, res) => {
     if (!req.session.admin) {
         return res.status(401).json({ message: 'Usuario no autenticado' });
@@ -459,11 +499,12 @@ app.get('/api/user', (req, res) => {
     return res.status(200).json(userData);
 });
 
-// Ruta para obtener videos del usuario por ID
-app.get('/resultado/:id', async (req, res) => {
-    const consulta = req.params.id;
-    console.log(consulta)
-    try {
+app.get('/resultado', async (req, res) => {
+    const consulta = req.query.query;
+    const videoId = req.query.id;
+    const category = req.query.category;
+    
+    if (videoId) {
         const query = `
             SELECT v.id, v.enlace as enlace, v.titulo as titulo, v.idCurso, v.categoria_id, v.usuarios_id, c.nombre AS nombreCurso, 
             u.nombre as nombreUsuario, cat.nombre as nombreCategoria 
@@ -471,16 +512,49 @@ app.get('/resultado/:id', async (req, res) => {
             JOIN curso c ON v.idCurso = c.id
             JOIN usuarios u ON v.usuarios_id = u.id
             JOIN categoria cat ON v.categoria_id = cat.id
-            WHERE v.titulo LIKE ? AND v.usuarios_id != ?;
+            WHERE v.id = ?;
         `;
-        const [videos] = await pool.query(query, [`%${consulta}%`,`%${consulta}%`, req.session.idUsuario]);
-        const [usuarios] = await pool.query('SELECT nombre, id FROM usuarios WHERE nombre LIKE ? AND id != ? ', [`%${consulta}%`, req.session.idUsuario]);
-        console.log(videos)
-        console.log(usuarios)
-        return res.status(200).json({ videos: videos , usuarios: usuarios});
-    } catch (error) {
-        return res.status(500).json({ message: "Error en el servidor." });
+        const [videos] = await pool.query(query, [videoId]);
+        return res.status(200).json({ videos });
+    } else if (consulta) {
+        let query;
+        let params;
+
+        if (category == 0) {
+            // Cuando category es 0, mostrar tanto videos como usuarios
+            query = `
+                SELECT v.id, v.enlace as enlace, v.titulo as titulo, v.idCurso, v.categoria_id, v.usuarios_id, c.nombre AS nombreCurso, 
+                u.nombre as nombreUsuario, cat.nombre as nombreCategoria 
+                FROM videos v
+                JOIN curso c ON v.idCurso = c.id
+                JOIN usuarios u ON v.usuarios_id = u.id
+                JOIN categoria cat ON v.categoria_id = cat.id
+                WHERE v.titulo LIKE ? AND v.usuarios_id != ?;
+            `;
+            params = [`%${consulta}%`, req.session.idUsuario];
+
+            const [videos] = await pool.query(query, params);
+            const [usuarios] = await pool.query('SELECT nombre, id FROM usuarios WHERE nombre LIKE ? AND id != ? ', [`%${consulta}%`, req.session.idUsuario]);
+            return res.status(200).json({ videos, usuarios });
+        } else {
+            // Cuando category no es 0, solo devolver videos
+            query = `
+                SELECT v.id, v.enlace as enlace, v.titulo as titulo, v.idCurso, v.categoria_id, v.usuarios_id, c.nombre AS nombreCurso, 
+                u.nombre as nombreUsuario, cat.nombre as nombreCategoria 
+                FROM videos v
+                JOIN curso c ON v.idCurso = c.id
+                JOIN usuarios u ON v.usuarios_id = u.id
+                JOIN categoria cat ON v.categoria_id = cat.id
+                WHERE v.titulo LIKE ? AND v.usuarios_id != ? AND v.categoria_id = ?;
+            `;
+            params = [`%${consulta}%`, req.session.idUsuario, category];
+
+            const [videos] = await pool.query(query, params);
+            return res.status(200).json({ videos, usuarios: [] });
+        }
     }
+
+    return res.status(400).json({ message: "No query or id provided" });
 });
 
 app.listen(PORT, () => {
