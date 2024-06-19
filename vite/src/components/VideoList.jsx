@@ -80,15 +80,17 @@ const VideoList = () => {
             });
             const result = await response.json();
             if (response.ok) {
+                // Eliminar el video de la lista localmente
+                setVideos(prevVideos => prevVideos.filter(v => v.id !== video.id));
                 swal("¡Video eliminado!", "El video ha sido eliminado correctamente.", "success");
             } else {
                 swal("Error", result.message, "error");
             }
         } catch (error) {
-            console.error('Error inserting comment:', error);
+            console.error('Error deleting video:', error);
             swal("Error", "No se pudo eliminar el video.", "error");
         }
-    };
+    };    
 
     return (
         <div className="container d-flex flex-column">
