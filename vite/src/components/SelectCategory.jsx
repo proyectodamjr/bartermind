@@ -31,7 +31,7 @@ const SelectDropdown = ({ handleCategory  }) => {
   return (
     <div className="input-wrapper">
       <select value={selectedOption} onChange={handleChange}>
-        <option value="">Seleccione una opción</option>
+        <option value="">Filtro categoría</option>
         {options.map((option) => (
           <option key={option.id} value={option.nombre} id={option.id}>
             {option.nombre}

@@ -82,7 +82,7 @@ const NuevoCurso = () => {
           >
             Upload
           </button>
-          <a class="btn btn-outline-danger mt-3 ms-3" href="/misCursos.html">Cancelar</a>
+          <a class="btn btn-outline-danger mt-3 ms-3" href="/perfil.html">Cancelar</a>
         </div>
       </div>
       <div>
